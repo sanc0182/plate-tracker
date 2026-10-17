@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Logins')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <h1>Logins</h1>
+
+    <form th:action="@{/admin/users}" th:object="${form}" method="post" class="card form-grid">
+        <label>Username
+            <input type="text" th:field="*{username}" maxlength="50" autocomplete="off" required>
+            <span class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+        </label>
+        <label>Password (min. 8 characters)
+            <input type="password" th:field="*{password}" autocomplete="new-password" required>
+            <span class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+        </label>
+        <label>Role
+            <select th:field="*{role}">
+                <option th:each="r : ${roles}" th:value="${r}"
+                        th:text="${r.name() == 'ADMIN'} ? 'Super user' : 'Employee user'"></option>
+            </select>
+        </label>
+        <label>Linked employee (optional)
+            <select th:field="*{employeeId}">
+                <option value="">Shared login / none</option>
+                <option th:each="e : ${employees}" th:value="${e.id}" th:text="${e.name}"></option>
+            </select>
+        </label>
+        <div class="actions">
+            <button type="submit">Create login</button>
+        </div>
+    </form>
+
+    <table>
+        <thead><tr><th>Username</th><th>Role</th><th>Linked employee</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="u : ${items}">
+            <td th:text="${u.username}"></td>
+            <td th:text="${u.role.name() == 'ADMIN'} ? 'Super user' : 'Employee user'"></td>
+            <td th:text="${u.employee != null} ? ${u.employee.name} : '—'"></td>
+            <td class="actions">
+                <form th:action="@{/admin/users/{id}/delete(id=${u.id})}" method="post"
+                      onsubmit="return confirm('Delete this login?')">
+                    <button type="submit" class="danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

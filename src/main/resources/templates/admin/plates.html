@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Plates')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <h1>Licence plates</h1>
+
+    <form th:action="@{/admin/plates}" th:object="${form}" method="post" class="card form-grid">
+        <input type="hidden" th:field="*{id}">
+        <label>Plate number
+            <input type="text" th:field="*{plateNumber}" maxlength="20" required>
+            <span class="error" th:if="${#fields.hasErrors('plateNumber')}" th:errors="*{plateNumber}"></span>
+        </label>
+        <label>Registration date
+            <input type="date" th:field="*{registrationDate}" required>
+            <span class="error" th:if="${#fields.hasErrors('registrationDate')}" th:errors="*{registrationDate}"></span>
+        </label>
+        <label class="check">
+            <input type="checkbox" th:field="*{active}"> In service
+        </label>
+        <div class="actions">
+            <button type="submit" th:text="*{id} == null ? 'Add plate' : 'Save changes'">Add plate</button>
+            <a th:if="*{id} != null" th:href="@{/admin/plates}">Cancel</a>
+        </div>
+    </form>
+
+    <table>
+        <thead><tr><th>Plate</th><th>Registered</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${items}">
+            <td><strong th:text="${p.plateNumber}"></strong></td>
+            <td th:text="${p.registrationDate}"></td>
+            <td th:text="${p.active} ? 'In service' : 'Retired'" th:classappend="${p.active} ? '' : 'muted'"></td>
+            <td class="actions">
+                <a th:href="@{/admin/plates(edit=${p.id})}">Edit</a>
+                <form th:action="@{/admin/plates/{id}/delete(id=${p.id})}" method="post"
+                      onsubmit="return confirm('Delete this plate?')">
+                    <button type="submit" class="danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

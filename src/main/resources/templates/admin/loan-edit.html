@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Correct entry')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <h1>Correct log entry</h1>
+    <p class="muted">
+        Plate <strong th:text="${loan.plate.plateNumber}"></strong> &middot; entry #<span th:text="${loan.id}"></span>.
+        Every change is recorded with your username, the time and the reason you give.
+    </p>
+
+    <form th:action="@{/admin/loans/{id}/edit(id=${loan.id})}" th:object="${form}" method="post" class="card">
+        <div class="flash err" th:if="${#fields.hasGlobalErrors()}" role="alert">
+            <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+        </div>
+
+        <div class="form-grid">
+            <label>Employee
+                <select th:field="*{employeeId}" required>
+                    <option th:each="e : ${employees}" th:value="${e.id}"
+                            th:text="${e.active} ? ${e.name} : ${e.name + ' (inactive)'}"></option>
+                </select>
+                <span class="error" th:if="${#fields.hasErrors('employeeId')}" th:errors="*{employeeId}"></span>
+            </label>
+            <label>Approved by
+                <select th:field="*{approverId}" required>
+                    <option th:each="a : ${approvers}" th:value="${a.id}"
+                            th:text="${a.active} ? ${a.name} : ${a.name + ' (inactive)'}"></option>
+                </select>
+                <span class="error" th:if="${#fields.hasErrors('approverId')}" th:errors="*{approverId}"></span>
+            </label>
+            <label>Stock #
+                <input type="text" th:field="*{stockNumber}" maxlength="30" required>
+                <span class="error" th:if="${#fields.hasErrors('stockNumber')}" th:errors="*{stockNumber}"></span>
+            </label>
+            <label>Time out
+                <input type="datetime-local" th:field="*{timeOut}" required>
+                <span class="error" th:if="${#fields.hasErrors('timeOut')}" th:errors="*{timeOut}"></span>
+            </label>
+            <label>Time in <span class="muted">(empty = still out)</span>
+                <input type="datetime-local" th:field="*{timeIn}">
+                <span class="error" th:if="${#fields.hasErrors('timeIn')}" th:errors="*{timeIn}"></span>
+            </label>
+        </div>
+
+        <label style="margin-top: .85rem">Reason for the correction (required)
+            <input type="text" th:field="*{reason}" maxlength="255" required placeholder="e.g. Forgot to click return">
+            <span class="error" th:if="${#fields.hasErrors('reason')}" th:errors="*{reason}"></span>
+        </label>
+
+        <div class="actions" style="margin-top: 1rem">
+            <button type="submit">Save correction</button>
+            <a th:href="@{/admin/loans}">Cancel</a>
+        </div>
+    </form>
+
+    <h2>History of this entry</h2>
+    <p class="muted" th:if="${history.isEmpty()}">No corrections have been made to this entry.</p>
+    <table th:unless="${history.isEmpty()}">
+        <thead>
+        <tr><th>When</th><th>By</th><th>Field</th><th>From</th><th>To</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="h : ${history}">
+            <td th:text="${#temporals.format(h.changedAt, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${h.changedBy}"></td>
+            <td th:text="${h.fieldName}"></td>
+            <td th:text="${h.oldValue}"></td>
+            <td th:text="${h.newValue}"></td>
+            <td th:text="${h.reason}"></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

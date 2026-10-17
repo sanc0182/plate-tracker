@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Log')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <h1>Plate log</h1>
+
+    <p class="muted" th:if="${page.empty}">Nothing has been logged yet.</p>
+    <table th:unless="${page.empty}">
+        <thead>
+        <tr><th>Date</th><th>Plate</th><th>Employee</th><th>Stock #</th><th>Time out</th><th>Time in</th><th>Approver</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="l : ${page.content}">
+            <td th:text="${#temporals.format(l.timeOut, 'yyyy-MM-dd')}"></td>
+            <td><strong th:text="${l.plate.plateNumber}"></strong></td>
+            <td th:text="${l.employee.name}"></td>
+            <td th:text="${l.stockNumber}"></td>
+            <td th:text="${#temporals.format(l.timeOut, 'HH:mm')}"></td>
+            <td>
+                <span th:if="${l.timeIn != null}" th:text="${#temporals.format(l.timeIn, 'HH:mm')}"></span>
+                <span th:if="${l.timeIn == null}" class="badge out">still out</span>
+            </td>
+            <td th:text="${l.approver.name}"></td>
+            <td><a th:href="@{/admin/loans/{id}/edit(id=${l.id})}">Correct</a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pager" th:if="${page.totalPages > 1}">
+        <a th:if="${page.hasPrevious()}" th:href="@{/admin/loans(page=${page.number - 1})}">&larr; Newer</a>
+        <span class="muted" th:text="'Page ' + ${page.number + 1} + ' of ' + ${page.totalPages}"></span>
+        <a th:if="${page.hasNext()}" th:href="@{/admin/loans(page=${page.number + 1})}">Older &rarr;</a>
+    </div>
+</main>
+</body>
+</html>

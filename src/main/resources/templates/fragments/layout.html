@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · Plate Tracker'">Plate Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header th:fragment="nav" class="topbar">
+    <a th:href="@{/}" class="brand">Plate Tracker</a>
+    <nav sec:authorize="isAuthenticated()">
+        <a th:href="@{/plates}">Take / return</a>
+        <th:block sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/admin/loans}">Log</a>
+            <a th:href="@{/admin/plates}">Plates</a>
+            <a th:href="@{/admin/employees}">Employees</a>
+            <a th:href="@{/admin/departments}">Departments</a>
+            <a th:href="@{/admin/users}">Logins</a>
+        </th:block>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="link">Sign out (<span sec:authentication="name">user</span>)</button>
+        </form>
+    </nav>
+</header>
+
+<div th:fragment="flash">
+    <div class="flash ok" th:if="${msg}" th:text="${msg}" role="status"></div>
+    <div class="flash err" th:if="${error}" th:text="${error}" role="alert"></div>
+</div>
+
+</body>
+</html>

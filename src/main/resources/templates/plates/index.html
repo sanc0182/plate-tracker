@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Take / return')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="card">
+        <h2>Take a licence plate</h2>
+        <p class="muted" th:if="${availablePlates.isEmpty()}">No plates are available right now. All of them are out.</p>
+        <form th:unless="${availablePlates.isEmpty()}" th:action="@{/plates/take}" method="post" class="form-grid">
+            <label>Plate
+                <select name="plateId" required>
+                    <option value="" disabled selected>Select a plate</option>
+                    <option th:each="p : ${availablePlates}" th:value="${p.id}" th:text="${p.plateNumber}"></option>
+                </select>
+            </label>
+            <label>Employee
+                <select name="employeeId" th:disabled="${currentEmployeeId != null}" required>
+                    <option value="" disabled th:selected="${currentEmployeeId == null}">Select your name</option>
+                    <option th:each="e : ${employees}" th:value="${e.id}"
+                            th:text="${e.name} + ' (' + ${e.department.name} + ')'"
+                            th:selected="${currentEmployeeId != null and currentEmployeeId == e.id}"></option>
+                </select>
+            </label>
+            <label>Stock #
+                <input type="text" name="stockNumber" maxlength="30" required autocomplete="off">
+            </label>
+            <label>Approved by (reception)
+                <select name="approverId" required>
+                    <option value="" disabled selected>Select receptionist</option>
+                    <option th:each="a : ${approvers}" th:value="${a.id}" th:text="${a.name}"></option>
+                </select>
+            </label>
+            <button type="submit">Take licence plate</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Plates currently out</h2>
+        <p class="muted" th:if="${openLoans.isEmpty()}">Every plate is in the drawer.</p>
+        <table th:unless="${openLoans.isEmpty()}">
+            <thead>
+            <tr><th>Plate</th><th>Employee</th><th>Stock #</th><th>Out since</th><th>Approved by</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="l : ${openLoans}">
+                <td><strong th:text="${l.plate.plateNumber}"></strong></td>
+                <td th:text="${l.employee.name}"></td>
+                <td th:text="${l.stockNumber}"></td>
+                <td th:text="${#temporals.format(l.timeOut, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${l.approver.name}"></td>
+                <td>
+                    <form th:if="${currentEmployeeId == null or currentEmployeeId == l.employee.id}"
+                          th:action="@{/plates/{id}/return(id=${l.id})}" method="post">
+                        <button type="submit">Return licence plate</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

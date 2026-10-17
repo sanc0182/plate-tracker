@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Employees')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <h1>Employees</h1>
+
+    <form th:action="@{/admin/employees}" th:object="${form}" method="post" class="card form-grid">
+        <input type="hidden" th:field="*{id}">
+        <label>Name
+            <input type="text" th:field="*{name}" maxlength="100" required>
+            <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+        </label>
+        <label>Department
+            <select th:field="*{department.id}" required>
+                <option value="">Select a department</option>
+                <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"></option>
+            </select>
+            <span class="error" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></span>
+        </label>
+        <label class="check">
+            <input type="checkbox" th:field="*{active}"> Active
+        </label>
+        <div class="actions">
+            <button type="submit" th:text="*{id} == null ? 'Add employee' : 'Save changes'">Add employee</button>
+            <a th:if="*{id} != null" th:href="@{/admin/employees}">Cancel</a>
+        </div>
+    </form>
+
+    <table>
+        <thead><tr><th>Name</th><th>Department</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="e : ${items}">
+            <td th:text="${e.name}"></td>
+            <td th:text="${e.department.name}"></td>
+            <td th:text="${e.active} ? 'Active' : 'Inactive'" th:classappend="${e.active} ? '' : 'muted'"></td>
+            <td class="actions">
+                <a th:href="@{/admin/employees(edit=${e.id})}">Edit</a>
+                <form th:action="@{/admin/employees/{id}/delete(id=${e.id})}" method="post"
+                      onsubmit="return confirm('Delete this employee?')">
+                    <button type="submit" class="danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

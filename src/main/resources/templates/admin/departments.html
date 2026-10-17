@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Departments')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <h1>Departments</h1>
+
+    <form th:action="@{/admin/departments}" th:object="${form}" method="post" class="card form-grid">
+        <input type="hidden" th:field="*{id}">
+        <label>Name
+            <input type="text" th:field="*{name}" maxlength="50" required>
+            <span class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+        </label>
+        <div class="actions">
+            <button type="submit" th:text="*{id} == null ? 'Add department' : 'Save changes'">Add department</button>
+            <a th:if="*{id} != null" th:href="@{/admin/departments}">Cancel</a>
+        </div>
+    </form>
+
+    <table>
+        <thead><tr><th>Name</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="d : ${items}">
+            <td th:text="${d.name}"></td>
+            <td class="actions">
+                <a th:href="@{/admin/departments(edit=${d.id})}">Edit</a>
+                <form th:action="@{/admin/departments/{id}/delete(id=${d.id})}" method="post"
+                      onsubmit="return confirm('Delete this department?')">
+                    <button type="submit" class="danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

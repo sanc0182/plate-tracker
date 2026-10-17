@@ -1,0 +1,19 @@
+# Local MySQL for the "mysql" profile:
+#   docker compose up -d
+#   DB_PASSWORD=platetracker APP_ADMIN_PASSWORD=choose-one ./mvnw spring-boot:run -Dspring-boot.run.profiles=mysql
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: platetracker
+      MYSQL_USER: platetracker
+      MYSQL_PASSWORD: platetracker
+      MYSQL_ROOT_PASSWORD: root-change-me
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
